@@ -3,6 +3,7 @@ name: Data Processing Workflow
 on:
   push:
     branches: [ main ]
+  pull_request: # Ajout de pull_request pour déclencher le workflow sur les PRs
 
 jobs:
   process_data:
@@ -11,7 +12,7 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3  # Mettre à jour vers v3
-      
+
     - name: Set up Python
       uses: actions/setup-python@v4  # Mettre à jour vers v4
       with:
@@ -21,4 +22,28 @@ jobs:
       run: pip install pandas
 
     - name: Run data processing script
-      run: python process_data.py
+      id: run_script
+      run: |
+        python process_data.py > results.txt
+        echo "Results:"
+        cat results.txt
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: results
+        path: results.txt
+
+    - name: Comment PR with results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const results = fs.readFileSync('results.txt', 'utf8');
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `## Results\n\n${results}`
+          });
