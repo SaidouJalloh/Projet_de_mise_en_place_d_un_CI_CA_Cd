@@ -1,6 +1,6 @@
 import pandas as pd
 
-file_path = "avocado.csv"  # Assurez-vous que le chemin du fichier est correct
+file_path = "avocado.csv"
 
 def load_data(file_path):
     try:
@@ -23,7 +23,7 @@ def handle_missing_values(data):
         print("Il n'y a pas de valeurs manquantes dans le dataset.")
 
 def display_header(data):
-    print("Entête du dataset :")
+    print("Entête du fichier csv :")
     print(data.head())
 
 def display_descriptive_statistics(data):
